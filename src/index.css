@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+p {
+  margin: 0px;
+}
+.App {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.main {
+  display: flex;
+  text-align: left;
+  flex: 1;
+}
+.header {
+  background-color: #c3c3c3;
+}
+.left {
+  width: 200px;
+  background: #c3c3c3;
+  padding: 10px;
+}
+.left .hero .name {
+  margin-left: 0px !important;
+}
+.right {
+  flex: 1;
+  padding: 10px;
+}
+.children {
+  margin-left: 12px;
+  display: none;
+}
+.children.active {
+  display: block;
+}
+.hero.pointer {
+  cursor: pointer;
+}
+.hero:not(.pointer) .name {
+  margin-left: 28px;
+}
+.name {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+.icon {
+  border: 1px solid gray;
+  height: 14px;
+  width: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+.img-hero {
+  height: 30px;
+  width: 30px;
+  margin-left: 12px;
+}
+
+.hero-name {
+  color: white;
+  margin-top: 12px;
+}
+.hero-form {
+  padding: 10px;
+}
+.hero-form .footer,
+.hero-form input,
+.hero-form p {
+  margin-top: 12px;
+}
+.hero-form {
+}
+
+.hero-form .footer button:first-child {
+  margin-right: 12px;
+}
+.hero-form .children-list {
+  display: flex;
+  flex-direction: column;
+}
+input.error {
+  border-color: red;
+}
+.container-hero {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+.container-hero button {
+  margin-left: 8px;
+}
