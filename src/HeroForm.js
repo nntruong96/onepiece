@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-
+import { InputSuggestions } from 'react-input-suggestions';
+import TextInput from 'react-autocomplete-input';
+import 'react-autocomplete-input/dist/bundle.css';
 export default function HeroForm({
   item = {},
   onCancel,
@@ -8,17 +10,19 @@ export default function HeroForm({
   heroName,
 } = {}) {
   const [name, setName] = useState(heroName || '');
+  const [code, setCode] = useState(heroName ? item.code : '');
   const [errorName, setErrorName] = useState(false);
   const [image, setImage] = useState(heroName ? item.image : '');
   const [children, setChildren] = useState(
-    heroName ? item.children || [] : ['', '']
+    heroName ? item.children || [] : ['', '', '']
   );
   const [error, setError] = useState([]);
   useEffect(() => {
     if (heroName !== name) {
       setName(heroName);
       setErrorName(false);
-      setImage(heroName ? item.iamge : '');
+      setImage(heroName ? item.image : '');
+      setImage(heroName ? item.code : '');
       setChildren(heroName ? item.children || [] : ['', '']);
       setError([]);
     }
@@ -29,7 +33,8 @@ export default function HeroForm({
       return setErrorName(true);
     }
     let newError = JSON.parse(JSON.stringify([]));
-    children.forEach((item, index) => {
+    let newChildren = children.map((item) => item.trim().replace('@', ''));
+    newChildren.forEach((item, index) => {
       if (!data[item]) {
         newError[index] = true;
       }
@@ -40,7 +45,8 @@ export default function HeroForm({
 
     let hero = {
       image,
-      children: children.map((item) => item.trim()),
+      children: newChildren,
+      code,
     };
     onSave(newName, hero, heroName);
   };
@@ -48,6 +54,7 @@ export default function HeroForm({
     let childrenFill = children.some((item) => !item || !item.trim());
     return !name || childrenFill;
   };
+  console.log(children);
   return (
     <div className="hero-form">
       <div className="hero-form__header">
@@ -69,6 +76,13 @@ export default function HeroForm({
           }}
           placeholder="Image"
         />
+        <input
+          placeholder={'Code'}
+          value={code}
+          onChange={(e) => {
+            setCode(e.target.value);
+          }}
+        />
         <button
           onClick={() => {
             let newData = JSON.parse(JSON.stringify(children));
@@ -84,8 +98,24 @@ export default function HeroForm({
         <div className="children-list">
           {children.map((name, index) => {
             return (
-              <div key={index}>
-                <input
+              <div key={index} className="container-input">
+                <TextInput
+                  value={name}
+                  onChange={(e) => {
+                    console.log(e);
+                    let newData = JSON.parse(JSON.stringify(children));
+                    newData[index] = e;
+                    setChildren(newData);
+                    let newError = JSON.parse(JSON.stringify(error));
+                    newError[index] = '';
+                    setError(newError);
+                  }}
+                  placeholder="Name"
+                  className={error[index] ? 'error' : ''}
+                  options={Object.keys(data)}
+                  spacer=""
+                />
+                {/* <input
                   value={name}
                   onChange={(e) => {
                     let newData = JSON.parse(JSON.stringify(children));
@@ -98,7 +128,23 @@ export default function HeroForm({
                   placeholder="Name"
                   className={error[index] ? 'error' : ''}
                 />
-
+                <div className="suggest">
+                  {Object.keys(data)
+                    .filter((item) => (name ? item.indexOf(name) >= 0 : false))
+                    .map((item) => {
+                      return (
+                        <p
+                          onClick={() => {
+                            let newData = JSON.parse(JSON.stringify(children));
+                            newData[index] = item;
+                            setChildren(newData);
+                          }}
+                        >
+                          {item}
+                        </p>
+                      );
+                    })}
+                </div> */}
                 <button
                   onClick={() => {
                     let newData = JSON.parse(JSON.stringify(children));

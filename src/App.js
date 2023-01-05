@@ -11,15 +11,26 @@ const getData = () => {
 const Name = (props) => {
   let { children, item, name } = props;
   let [open, setOpen] = useState(true);
+
   const onClick = () => {
     setOpen(!open);
+    if (props.onClick) {
+      props.onClick();
+    }
   };
   return (
     <>
-      <div onClick={onClick} className={'hero ' + (children ? 'pointer' : '')}>
+      <div
+        onClick={onClick}
+        className={'hero ' + (children && children.length ? 'pointer' : '')}
+      >
         <div className="name">
-          {children ? <p className="icon">{open ? '-' : '+'}</p> : null}{' '}
-          <p>{name}</p>
+          {children && children.length ? (
+            <p className="icon">{open ? '-' : '+'}</p>
+          ) : null}{' '}
+          <p>
+            {name} {item.code ? `(${item.code})` : ''}
+          </p>
           {item.image ? (
             <img className="img-hero" src={item.image} alt="hero" />
           ) : null}
@@ -30,11 +41,20 @@ const Name = (props) => {
   );
 };
 function App() {
-  const [select, setSelect] = useState('');
+  const [select, setStateSelect] = useState();
   const [textSearch, setSearch] = useState('');
   const [data, setData] = useState(Constants);
   const [showHeroForm, setShow] = useState(false);
   const [edit, setEdit] = useState('');
+  let [tab, setTab] = useState(1);
+  const setSelect = (name) => {
+    if (select) {
+      window.history.replaceState(null, select, name);
+    } else {
+      window.history.replaceState(null, '', name);
+    }
+    setStateSelect(name);
+  };
   const renderChilren = (name) => {
     if (data[name]) {
       return (
@@ -42,6 +62,30 @@ function App() {
           <Name name={name} item={data[name]}>
             {data[name]?.children?.map((item) => renderChilren(item))}
           </Name>
+        </div>
+      );
+    }
+  };
+
+  const renderCanBuild = (name) => {
+    let keys = Object.keys(data);
+    let parent = keys.map((key) => {
+      return data[key]?.children?.includes(name) ? key : '';
+    });
+
+    if (data[name]) {
+      return (
+        <div>
+          {parent.map((hero) =>
+            hero ? (
+              <Name
+                key={hero}
+                name={hero}
+                item={data[hero]}
+                onClick={() => setSelect(hero)}
+              ></Name>
+            ) : null
+          )}
         </div>
       );
     }
@@ -54,6 +98,10 @@ function App() {
       _data = JSON.parse(_data);
       setData(_data);
     }
+    let hero = decodeURIComponent(window.location.pathname.replace('/', ''));
+    if (data[hero]) {
+      setStateSelect(hero);
+    }
   }, []);
   const onSearch = (e) => {
     setSearch(e.target.value);
@@ -64,6 +112,29 @@ function App() {
     setData(newData);
     setShow(false);
     saveData(newData);
+  };
+
+  const renderTab = () => {
+    switch (tab) {
+      case 1:
+        return (
+          <div className="container-how-to-build">
+            <p> How to build</p>
+            {renderChilren(select)}
+          </div>
+        );
+      case 2:
+        return (
+          <div className="container-can-build">
+            <p> Can Up</p>
+            <Name name={select} item={data[select]} />
+            Can Up:
+            {renderCanBuild(select)}
+          </div>
+        );
+      default:
+        break;
+    }
   };
   return (
     <div className="App">
@@ -84,33 +155,37 @@ function App() {
               + Add Hero
             </button>
           </div>
-          {Object.keys(data)
-            .filter((item) =>
-              textSearch ? item.indexOf(textSearch) >= 0 : true
-            )
-            .map((key) => {
-              return (
-                <div
-                  key={key}
-                  onClick={() => {
-                    setSelect(key);
-                  }}
-                  className="container-hero"
-                >
-                  <Name name={key} item={data[key]} />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEdit(key);
-                      setShow(true);
+          <div className="list">
+            {Object.keys(data)
+              .filter((item) =>
+                textSearch
+                  ? item.toLowerCase().indexOf(textSearch.toLowerCase()) >= 0
+                  : true
+              )
+              .map((key) => {
+                return (
+                  <div
+                    key={key}
+                    onClick={() => {
+                      setSelect(key);
                     }}
+                    className="container-hero"
                   >
-                    Edit
-                  </button>
-                  {/* <button>Copy name</button> */}
-                </div>
-              );
-            })}
+                    <Name name={key} item={data[key]} />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEdit(key);
+                        setShow(true);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    {/* <button>Copy name</button> */}
+                  </div>
+                );
+              })}
+          </div>
         </div>
         {showHeroForm ? (
           <HeroForm
@@ -121,7 +196,15 @@ function App() {
             heroName={edit}
           />
         ) : (
-          <div className="right">{renderChilren(select)}</div>
+          <div className="right">
+            {select ? (
+              <div className="tab">
+                <button onClick={() => setTab(1)}>How to build</button>
+                <button onClick={() => setTab(2)}>Can up</button>
+              </div>
+            ) : null}
+            {renderTab()}
+          </div>
         )}
       </div>
     </div>
