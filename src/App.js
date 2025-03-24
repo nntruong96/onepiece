@@ -31,9 +31,9 @@ const Name = (props) => {
           <p>
             {name} {item.code ? `(${item.code})` : ''}
           </p>
-          {item.image ? (
+          {/* {item.image ? (
             <img className="img-hero" src={item.image} alt="hero" />
-          ) : null}
+          ) : null} */}
         </div>
       </div>
       <div className={'children ' + (open ? 'active' : '')}>{children}</div>
